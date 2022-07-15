@@ -41,6 +41,8 @@ if (sceltaAndataeRitornoUser == "0")
         Pagamento pagamentoX = inserimentoPagamento(clienteNuovo, trattaSceltaDalCliente);
         PrenotazioneVolo prenotazioneEffettuata = new PrenotazioneVolo(clienteNuovo, trattaSceltaDalCliente, dataPartenza, trattaSceltaDalCliente.CostoTratta, pagamentoX);
         FatturaPrenotazione(prenotazioneEffettuata);
+        listaPrenotazioni.Add(prenotazioneEffettuata);
+
 
     }
     else if (avanzamentoAlPagamento == "No")
@@ -52,24 +54,46 @@ if (sceltaAndataeRitornoUser == "0")
 }
 else if (sceltaAndataeRitornoUser == "1")
 {
+    DateTime dataPartenzaRitorno = InserisciData();
+
+
     Aeroporto sceltaAeroportoPartenza = SceltaAeroportoPartenza();
     Aeroporto sceltaAeroportoArrivo = SceltaAeroportoArrivo();
 
     Tratta trattaSceltaDalCliente = StampaTrattaConRitorno(sceltaAeroportoPartenza, sceltaAeroportoArrivo, sceltaAeroportoArrivo, sceltaAeroportoPartenza);
+    Tratta trattaDiRitorno = new Tratta(sceltaAeroportoArrivo, sceltaAeroportoPartenza);
+    Console.WriteLine();
     Console.WriteLine($"Giorno e ora della partenza: {dataPartenza}");
+    Console.WriteLine();
+    Console.WriteLine($"Giorno e ora del ritorno: {dataPartenzaRitorno}");
+    Console.WriteLine();
+
 
     Console.WriteLine($"Procedere con l'acquisto [Si/No] ?");
     string avanzamentoAlPagamento = Console.ReadLine();
 
     if (avanzamentoAlPagamento == "Si")
     {
-        inserimentoPagamento(clienteNuovo, trattaSceltaDalCliente);
+        Pagamento pagamentoX = inserimentoPagamento(clienteNuovo, trattaSceltaDalCliente);
+        PrenotazioneVolo prenotazioneEffettuata = new PrenotazioneVolo(clienteNuovo, trattaSceltaDalCliente, trattaDiRitorno, dataPartenza, dataPartenzaRitorno, trattaSceltaDalCliente.CostoTratta, pagamentoX);
+        FatturaPrenotazioneConRitorno(prenotazioneEffettuata);
+        listaPrenotazioni.Add(prenotazioneEffettuata);
+
     }
     else if (avanzamentoAlPagamento == "No")
     {
         Console.WriteLine("La ringraziamo per il suo tempo dedicato a noi. Speriamo di rivederla presto");
     }
+
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -211,7 +235,8 @@ Pagamento inserimentoPagamento(Cliente clienteX, Tratta trattaSceltaDalCliente)
     string ibanClienteX = Console.ReadLine();
     Console.Write($"Inserire il CVC: ");
     int cvcClienteX = int.Parse(Console.ReadLine());
-
+    Console.WriteLine();
+    Console.WriteLine();
     Console.WriteLine("Pagamento effettuato correttamente! Grazie per aver scelto il nostro servizio!");
 
     Pagamento pagamentoEffettuato = new Pagamento(ibanClienteX, cvcClienteX, clienteX, trattaSceltaDalCliente);
@@ -243,6 +268,7 @@ DateTime InserisciData()
 
 void FatturaPrenotazione(PrenotazioneVolo prenotazioneX)
 {
+    Console.WriteLine();
     Console.WriteLine("------------------------- Prenotazione -------------------------");
     Console.WriteLine();
     Console.WriteLine("Nome: " + prenotazioneX.ClienteX.Nome);
@@ -253,5 +279,63 @@ void FatturaPrenotazione(PrenotazioneVolo prenotazioneX)
     Console.WriteLine($"Recapito telefonico: {prenotazioneX.ClienteX.RecapitoTelefonico}");
     Console.WriteLine($"Indirizzo: {prenotazioneX.ClienteX.Indirizzo}");
     Console.WriteLine();
+    Console.WriteLine();
+    Console.WriteLine("Andata");
+    Console.WriteLine();
+    Console.WriteLine($"Aeroporto di partenza:{prenotazioneX.NewTrack.AeroportoPartenza.LuogoDellAeroporto}");
+    Console.WriteLine($"Aeroporto di arrivo: {prenotazioneX.NewTrack.AeroportoArrivo.LuogoDellAeroporto}");
 
+    Console.WriteLine($"La durata del volo è di: {prenotazioneX.NewTrack.durataTratta} minuti");
+    Console.WriteLine($"Costo tratta : {prenotazioneX.NewTrack.CostoTratta} euro");
+    Console.WriteLine();
+    
+    Console.WriteLine();
+    Console.WriteLine("Dati pagamento: ");
+    Console.WriteLine("Nome sulla carta: " + prenotazioneX.ClienteX.Nome);
+    Console.WriteLine("Cognome sulla carta: " + prenotazioneX.ClienteX.Cognome);
+    Console.WriteLine($"Indirizzo di fatturazione: {prenotazioneX.ClienteX.Indirizzo}");
+    Console.WriteLine($"IBAN : {prenotazioneX.PagamentoX.IBANcarta}");
+    Console.WriteLine($"CVC : {prenotazioneX.PagamentoX.GetCvc()}");
 }
+
+void FatturaPrenotazioneConRitorno(PrenotazioneVolo prenotazioneX)
+{
+    Console.WriteLine();
+    Console.WriteLine("------------------------- Prenotazione -------------------------");
+    Console.WriteLine();
+    Console.WriteLine("Nome: " + prenotazioneX.ClienteX.Nome);
+    Console.WriteLine("Cognome: " + prenotazioneX.ClienteX.Cognome);
+    Console.WriteLine("Codice Fiscale: " + prenotazioneX.ClienteX.CodiceFiscale);
+    Console.WriteLine($"Email: {prenotazioneX.ClienteX.Email}");
+    Console.WriteLine($"Sesso: {prenotazioneX.ClienteX.Sesso}");
+    Console.WriteLine($"Recapito telefonico: {prenotazioneX.ClienteX.RecapitoTelefonico}");
+    Console.WriteLine($"Indirizzo: {prenotazioneX.ClienteX.Indirizzo}");
+    Console.WriteLine();
+    Console.WriteLine();
+    Console.WriteLine("Andata");
+    Console.WriteLine();
+    Console.WriteLine($"Aeroporto di partenza:{prenotazioneX.NewTrack.AeroportoPartenza.LuogoDellAeroporto}");
+    Console.WriteLine($"Aeroporto di arrivo: {prenotazioneX.NewTrack.AeroportoArrivo.LuogoDellAeroporto}");
+    Console.WriteLine($"Data e ora dela partenza: {prenotazioneX.DataPartenza}");
+    Console.WriteLine($"La durata del volo è di: {prenotazioneX.NewTrack.durataTratta} minuti");
+    Console.WriteLine($"Costo tratta : {prenotazioneX.NewTrack.CostoTratta} euro");
+    Console.WriteLine();
+    Console.WriteLine("Ritorno");
+    Console.WriteLine();
+    Console.WriteLine($"Aeroporto di partenza:{prenotazioneX.NewTrack.AeroportoPartenzaRitorno.LuogoDellAeroporto}");
+    Console.WriteLine($"Aeroporto di arrivo: {prenotazioneX.NewTrack.AeroportoArrivoRitorno.LuogoDellAeroporto}");
+    Console.WriteLine($"Data e ora dela partenza: {prenotazioneX.DataRitorno}");
+    Console.WriteLine($"La durata del volo è di: {prenotazioneX.NewTrackBack.durataTratta} minuti");
+    Console.WriteLine($"Costo tratta : {prenotazioneX.NewTrackBack.CostoTratta} euro");
+    Console.WriteLine();
+    Console.WriteLine($"Costo totale : { prenotazioneX.NewTrack.CostoTratta + prenotazioneX.NewTrackBack.CostoTratta}");
+    Console.WriteLine();
+    Console.WriteLine("Dati pagamento: ");
+    Console.WriteLine("Nome sulla carta: " + prenotazioneX.ClienteX.Nome);
+    Console.WriteLine("Cognome sulla carta: " + prenotazioneX.ClienteX.Cognome);
+    Console.WriteLine($"Indirizzo di fatturazione: {prenotazioneX.ClienteX.Indirizzo}");
+    Console.WriteLine($"IBAN : {prenotazioneX.PagamentoX.IBANcarta}");
+    Console.WriteLine($"CVC : {prenotazioneX.PagamentoX.GetCvc()}");
+}
+
+

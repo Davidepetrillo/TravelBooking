@@ -49,22 +49,23 @@ namespace TravelBooking
         {
 
             this.ClienteX = clienteX;
-
-
+            this.NewTrack = newTrack;
+            this.NewTrackBack = newTrackBack;
+            /*
             if (DataPartenza < DateTime.Now)
             {
                 throw new InvalidDataException("La data dell'appuntamento non può essere nel passato");
             }
-
+            */
             this.DataPartenza = dataPartenza;
-
+            /*
             DateTime intervalloMinimoPerRitorno = dataPartenza.AddHours(3);
 
             if (DataRitorno < (intervalloMinimoPerRitorno))
             {
                 throw new InvalidDataException("La data dell'appuntamento non può essere nel passato");
             }
-
+            */
             this.DataRitorno = dataRitorno;
 
             this.CostoTratta = costoTratta;

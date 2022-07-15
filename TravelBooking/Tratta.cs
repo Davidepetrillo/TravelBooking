@@ -55,6 +55,7 @@ namespace TravelBooking
         {
             this.AeroportoPartenza = aeroportoPartenza;
             this.AeroportoArrivo = aeroportoArrivo;
+
             this.AeroportoPartenzaRitorno = aeroportoArrivo;
             this.AeroportoArrivoRitorno = aeroportoPartenza;
 
