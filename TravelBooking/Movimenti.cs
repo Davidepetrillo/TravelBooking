@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TravelBooking
 {
+    /*
     internal class Movimenti
     {
         public PrenotazioneVolo voloPrenotato { get; set; }
@@ -31,4 +32,5 @@ namespace TravelBooking
             return voloPrenotato.NumeroPostiDisponibili;
         }
     }
+     */
 }

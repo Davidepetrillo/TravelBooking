@@ -31,6 +31,10 @@ namespace TravelBooking
 
             this.IBANcarta = IBAN;
 
+            if (cvc != 234)
+            {
+                throw new Exception("Il cvc non è corretto");
+            }
             this.CvcCarta = cvc;
 
             this.ClienteX = cliente;

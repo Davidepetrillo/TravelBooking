@@ -15,49 +15,66 @@ long codiceRandomAereo = randomPlaneCode.Next(100000);
 
 
 
-var clienteNuovo = DatiCliente();
-
-//Cliente userX = new Cliente(clienteNuovo.Nome, clienteNuovo.Cognome, clienteNuovo.CodiceFiscale, clienteNuovo.Email, clienteNuovo.Sesso, clienteNuovo.RecapitoTelefonico, clienteNuovo.Indirizzo);
-
+Cliente clienteNuovo = DatiCliente();
 DescrizioneCliente(clienteNuovo);
 
+DateTime dataPartenza = InserisciData();
+
 Console.WriteLine("Digita 0 per prenotare un volo SOLO ANDATA  -  Digita 1 per prenotare un volo ANDATA E RITORNO");
+string sceltaAndataeRitornoUser = Console.ReadLine();
 
-bool sceltaAndataeRitornoUser = bool.Parse(Console.ReadLine());
 
-if (sceltaAndataeRitornoUser == false)
+if (sceltaAndataeRitornoUser == "0")
+{
+
+    Aeroporto sceltaAeroportoPartenza = SceltaAeroportoPartenza();
+    Aeroporto sceltaAeroportoArrivo = SceltaAeroportoArrivo();
+
+    Tratta trattaSceltaDalCliente = StampaTratta(sceltaAeroportoPartenza, sceltaAeroportoArrivo);
+    Console.WriteLine($"Giorno e ora della partenza: {dataPartenza}");
+
+    Console.WriteLine($"Procedere con l'acquisto [Si/No] ?");
+    string avanzamentoAlPagamento = Console.ReadLine();
+
+    if (avanzamentoAlPagamento == "Si")
+    {
+        Pagamento pagamentoX = inserimentoPagamento(clienteNuovo, trattaSceltaDalCliente);
+        PrenotazioneVolo prenotazioneEffettuata = new PrenotazioneVolo(clienteNuovo, trattaSceltaDalCliente, dataPartenza, trattaSceltaDalCliente.CostoTratta, pagamentoX);
+        FatturaPrenotazione(prenotazioneEffettuata);
+
+    }
+    else if (avanzamentoAlPagamento == "No")
+    {
+        Console.WriteLine("La ringraziamo per il suo tempo dedicato a noi. Speriamo di rivederla presto");
+    }
+
+
+}
+else if (sceltaAndataeRitornoUser == "1")
 {
     Aeroporto sceltaAeroportoPartenza = SceltaAeroportoPartenza();
     Aeroporto sceltaAeroportoArrivo = SceltaAeroportoArrivo();
 
-    StampaTratta(sceltaAeroportoPartenza, sceltaAeroportoArrivo);
+    Tratta trattaSceltaDalCliente = StampaTrattaConRitorno(sceltaAeroportoPartenza, sceltaAeroportoArrivo, sceltaAeroportoArrivo, sceltaAeroportoPartenza);
+    Console.WriteLine($"Giorno e ora della partenza: {dataPartenza}");
 
+    Console.WriteLine($"Procedere con l'acquisto [Si/No] ?");
+    string avanzamentoAlPagamento = Console.ReadLine();
+
+    if (avanzamentoAlPagamento == "Si")
+    {
+        inserimentoPagamento(clienteNuovo, trattaSceltaDalCliente);
+    }
+    else if (avanzamentoAlPagamento == "No")
+    {
+        Console.WriteLine("La ringraziamo per il suo tempo dedicato a noi. Speriamo di rivederla presto");
+    }
 }
-else if (sceltaAndataeRitornoUser == true)
-{
-    Aeroporto sceltaAeroportoPartenza = SceltaAeroportoPartenza();
-    Aeroporto sceltaAeroportoArrivo = SceltaAeroportoArrivo();
-
-    Aeroporto sceltaAeroportoPartenzaRitorno = SceltaAeroportoArrivo();
-    Aeroporto sceltaAeroportoArrivoRitorno = SceltaAeroportoPartenza();
-
-    StampaTrattaConRitorno(sceltaAeroportoPartenza, sceltaAeroportoArrivo, sceltaAeroportoPartenzaRitorno, sceltaAeroportoArrivoRitorno);
-}
-
-
-
-
-
-
 
 
 
 
 // ------------------------------------------- Funzioni --------------------------------------
-
-
-
-
 
 
 
@@ -109,7 +126,7 @@ void DescrizioneCliente(Cliente clienteX)
 
 Aeroporto SceltaAeroportoPartenza()
 {
-    Console.Write("Scegli il tuo aeroporto di partenza: ");
+    Console.Write("Scegli il tuo aeroporto di partenza [Napoli - Roma - Milano] : ");
     string luogoAeroportoDiPartenza = Console.ReadLine();
     Aeroporto aereoportoDiPartenza = new Aeroporto(luogoAeroportoDiPartenza);
     return aereoportoDiPartenza;
@@ -117,7 +134,7 @@ Aeroporto SceltaAeroportoPartenza()
 
 Aeroporto SceltaAeroportoArrivo()
 {
-    Console.Write("Scegli il tuo aeroporto di partenza: ");
+    Console.Write("Scegli il tuo aeroporto di arrivo [Napoli - Roma - Milano] : ");
     string luogoAeroportoDiArrivo = Console.ReadLine();
     Aeroporto aereoportoDiArrivo = new Aeroporto(luogoAeroportoDiArrivo);
     return aereoportoDiArrivo;
@@ -133,8 +150,8 @@ Tratta StampaTratta(Aeroporto aeroportoTakeOff, Aeroporto aeroportoLanding)
     Console.WriteLine("Di seguito puoi trovare la tratta che hai scelto : ");
     Console.WriteLine();
 
-    Console.WriteLine($"Aeroporto di partenza:{aeroportoTakeOff}");
-    Console.WriteLine($"Aeroporto di arrivo: {aeroportoLanding}");
+    Console.WriteLine($"Aeroporto di partenza:{aeroportoTakeOff.LuogoDellAeroporto}");
+    Console.WriteLine($"Aeroporto di arrivo: {aeroportoLanding.LuogoDellAeroporto}");
     Console.WriteLine($"La durata del volo è di: {durataTrattaSelezionata} minuti");
     Console.WriteLine($"Costo tratta : {costoTrattaSelezionata} euro");
 
@@ -150,7 +167,8 @@ Tratta StampaTrattaConRitorno(Aeroporto aeroportoTakeOff, Aeroporto aeroportoLan
     int durataTrattaSelezionata = trattaSelezionataAndata.durataTratta;
     aeroportoTakeOffBack = aeroportoLanding;
     aeroportoLandingBack = aeroportoTakeOff;
-    Tratta trattaSelezionataRitorno = new Tratta(aeroportoTakeOff, aeroportoLanding);
+
+    Tratta trattaSelezionataRitorno = new Tratta(aeroportoTakeOffBack, aeroportoLandingBack);
     double costoTrattaSelezionataRitorno = trattaSelezionataRitorno.CostoTratta;
     int durataTrattaSelezionataRitorno = trattaSelezionataRitorno.durataTratta;
 
@@ -159,79 +177,59 @@ Tratta StampaTrattaConRitorno(Aeroporto aeroportoTakeOff, Aeroporto aeroportoLan
     Console.WriteLine();
     Console.WriteLine("Andata");
     Console.WriteLine();
-    Console.WriteLine($"Aeroporto di partenza:{aeroportoTakeOff}");
-    Console.WriteLine($"Aeroporto di arrivo: {aeroportoLanding}");
+    Console.WriteLine($"Aeroporto di partenza:{aeroportoTakeOff.LuogoDellAeroporto}");
+    Console.WriteLine($"Aeroporto di arrivo: {aeroportoLanding.LuogoDellAeroporto}");
     Console.WriteLine($"La durata del volo è di: {durataTrattaSelezionata} minuti");
     Console.WriteLine($"Costo tratta : {costoTrattaSelezionata} euro");
     Console.WriteLine();
     Console.WriteLine("Ritorno");
     Console.WriteLine();
-    Console.WriteLine($"Aeroporto di partenza:{aeroportoTakeOffBack}");
-    Console.WriteLine($"Aeroporto di arrivo: {aeroportoLandingBack}");
+    Console.WriteLine($"Aeroporto di partenza:{aeroportoTakeOffBack.LuogoDellAeroporto}");
+    Console.WriteLine($"Aeroporto di arrivo: {aeroportoLandingBack.LuogoDellAeroporto}");
     Console.WriteLine($"La durata del volo è di: {durataTrattaSelezionataRitorno} minuti");
     Console.WriteLine($"Costo tratta : {costoTrattaSelezionataRitorno} euro");
+    Console.WriteLine();
 
-    Tratta newTrack = new Tratta(aeroportoTakeOff, aeroportoLanding);
+    Console.WriteLine($"Costo totale: {costoTrattaSelezionata + costoTrattaSelezionataRitorno} euro");
+
+    Tratta newTrack = new Tratta(aeroportoTakeOff, aeroportoLanding, aeroportoTakeOffBack, aeroportoLandingBack);
 
     return newTrack;
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-bool dataCorretta = false;
-while (!dataCorretta)
+Pagamento inserimentoPagamento(Cliente clienteX, Tratta trattaSceltaDalCliente)
 {
-    DateTime dataOraAppuntamento = InserisciDataPartenza();
-    try
-    {
-        listaPrenotazioni.Add(new PrenotazioneVolo());
-        dataCorretta = true;
-    }
-    catch (InvalidDataException ex)
-    {
-        Console.WriteLine(ex.Message);
-    }
+
+    Console.WriteLine("Inserire i suoi dati per il pagamento:");
+    Console.WriteLine();
+    Console.WriteLine("Nome sulla carta: " + clienteX.Nome);
+    Console.WriteLine("Cognome sulla carta: " + clienteX.Cognome);
+    Console.WriteLine($"Indirizzo di fatturazione: {clienteX.Indirizzo}");
+    Console.Write($"Inserire l'IBAN: ");
+    string ibanClienteX = Console.ReadLine();
+    Console.Write($"Inserire il CVC: ");
+    int cvcClienteX = int.Parse(Console.ReadLine());
+
+    Console.WriteLine("Pagamento effettuato correttamente! Grazie per aver scelto il nostro servizio!");
+
+    Pagamento pagamentoEffettuato = new Pagamento(ibanClienteX, cvcClienteX, clienteX, trattaSceltaDalCliente);
+    return pagamentoEffettuato;
+
 }
 
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-DateTime InserisciDataPartenza()
+DateTime InserisciData()
 {
     bool formatoDataCorretto = false;
-    DateTime dataOra = DateTime.Now;
+    DateTime dataVolo = DateTime.Now;
     while (!formatoDataCorretto)
     {
-        Console.WriteLine("Aggiungi la data e l'ora nella quale vorresti prenotare il tuo volo: [gg/mm/aaaa hh:mm]");
+        Console.WriteLine("Aggiungi la data nella quale vorresti prenotare il tuo volo: [gg/mm/aaaa hh:mm]");
 
         try
         {
-            dataOra = DateTime.Parse(Console.ReadLine());
+            dataVolo = DateTime.Parse(Console.ReadLine());
             formatoDataCorretto = true;
         }
         catch (Exception)
@@ -239,5 +237,21 @@ DateTime InserisciDataPartenza()
             Console.WriteLine("Il formato della data non è corretto");
         }
     }
-    return dataOra;
+    return dataVolo;
+}
+
+
+void FatturaPrenotazione(PrenotazioneVolo prenotazioneX)
+{
+    Console.WriteLine("------------------------- Prenotazione -------------------------");
+    Console.WriteLine();
+    Console.WriteLine("Nome: " + prenotazioneX.ClienteX.Nome);
+    Console.WriteLine("Cognome: " + prenotazioneX.ClienteX.Cognome);
+    Console.WriteLine("Codice Fiscale: " + prenotazioneX.ClienteX.CodiceFiscale);
+    Console.WriteLine($"Email: {prenotazioneX.ClienteX.Email}");
+    Console.WriteLine($"Sesso: {prenotazioneX.ClienteX.Sesso}");
+    Console.WriteLine($"Recapito telefonico: {prenotazioneX.ClienteX.RecapitoTelefonico}");
+    Console.WriteLine($"Indirizzo: {prenotazioneX.ClienteX.Indirizzo}");
+    Console.WriteLine();
+
 }
